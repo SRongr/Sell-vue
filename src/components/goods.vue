@@ -1,7 +1,7 @@
 <template>
   <div id="goods">
     <div class="menu-wrapper" ref="menuWrapper">
-      <div v-for="(item,index) in goods" :key = 'index' :class="{current:currentIndex === index}" class="menu-item" @click ='selectIndex(index,$event)'>
+      <div v-for="(item,index) in goods" :key = 'index' :class="{current:btnIndex === index}" class="menu-item" @click ='selectIndex(index,$event)'>
         <div class="text-wrapper">
           <span v-show="item.type > 0" :class="menuMap[item.type]" class="icon"></span>
           <span class="item-text">{{item.name}}</span>
@@ -62,7 +62,8 @@ export default {
       goods: [],
       menuMap:['decrease','discount','special','invoice','guarantee'],
       heightList:[],
-      scrollY : 0
+      scrollY : 0,
+      btnIndex : 0,
     }
   },
   components:{
@@ -76,11 +77,14 @@ export default {
         if(res.data.code === 0) {
           this.goods = res.data.data
           console.log(this.goods)
+          this.goods.pop()
+          // this.goods = this.goods.pop()
           Vue.nextTick(() =>{
             //给dom 绑定一个scroll
             //计算每一个foods 的高度
             this.initscroll()
             this.calculateHeight()
+            // console.log(goods)
           })
         }
       }
@@ -88,12 +92,13 @@ export default {
   },
    methods:{
     selectIndex(index,$event){
-      console.log(index,$event)
+      console.log(index)
+      this.btnIndex = index
       if(!$event._constructed){
         return
       }
       let foodList = this.$refs.foodsWrapper.getElementsByClassName('foods-list')
-      console.log(foodList[index])
+      // console.log(foodList[index])
       this.foodScroll.scrollToElement(foodList[index],300)
     },
     //better-scroll
@@ -106,8 +111,9 @@ export default {
         click : true
       })
       this.foodScroll.on('scroll',pos =>{
-        console.log(pos)
+        // console.log(pos)
         this.scrollY = Math.abs(Math.round(pos.y))
+        // console.log(this.scrollY)
       })
     },
     calculateHeight(){
@@ -124,14 +130,17 @@ export default {
     }
   },
   computed:{
-    currentIndex(){
-      for(let i = 0 ; i < this.heightList.length; i ++){
-        let height = this.heightList[i]
-        if(this.scrollY < height){
-          return i 
-        }
-      }
-    },
+    // currentIndex(){            //若要让菜单轮换current  就打开   如果直接跳转 就这样
+    //   // console.log(888)
+    //   for(let i = 0 ; i < this.heightList.length; i ++){
+    //     let height = this.heightList[i]
+    //     // console.log(999)
+    //     if(this.scrollY < height){
+    //       // console.log(i)
+    //       return i 
+    //     }
+    //   }
+    // },
     selectFoods(){
       let foods = [];
       if(this.goods.length !== 0){  // 防治页面还没加载完成 没有goods 报错
